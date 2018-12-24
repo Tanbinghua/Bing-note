@@ -1,0 +1,16 @@
+html, body, #app {
+  width: 100%;
+  height: 100%;
+}
+
+.scrollbar-wrapper {
+  overflow-x: hidden!important;
+}
+
+.scrollbar-wrapper .el-scrollbar__view {
+  height: 100%;
+}
+
+.el-scrollbar__bar.is-vertical {
+  right: 0px;
+}
