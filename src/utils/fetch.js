@@ -9,12 +9,22 @@ const service = axios.create({
 
 // response interceptor
 service.interceptors.response.use(
-  response => response,
+  response => {
+    if (response.data.success) {
+      return response.data
+    }
+    Message({
+      message: response.data.msg,
+      type: 'error',
+      duration: 5 * 1000,
+    })
+    return Promise.reject(response.data)
+  },
   error => {
     Message({
       message: error.message,
       type: 'error',
-      duration: 5 * 1000
+      duration: 5 * 1000,
     })
     return Promise.reject(error)
   }

@@ -11,9 +11,12 @@ export default {
     signout: '注销登录',
   },
   login: {
-    title: '系统登录',
+    inTitle: '系统登录',
+    upTitle: '系统注册',
     username: '账号',
     password: '密码',
-    login: '登录',
+    email: '邮箱',
+    signin: '登录',
+    signup: '注册',
   },
 }

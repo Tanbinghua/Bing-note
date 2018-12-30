@@ -11,9 +11,12 @@ export default {
     signout: 'Sign Out',
   },
   login: {
-    title: 'Login Form',
     username: 'Username',
     password: 'Password',
-    login: 'Log in',
+    email: 'Email',
+    signin: 'Log in',
+    signup: 'Sign up',
+    inTitle: 'Signin Form',
+    upTitle: 'Signup Form',
   },
 }

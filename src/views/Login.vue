@@ -2,10 +2,10 @@
   <div id="login">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
       <div class="title-container">
-        <h3 class="title">{{ $t('login.title') }}</h3>
+        <h3 class="title">{{ signin ? $t('login.inTitle') : $t('login.upTitle') }}</h3>
         <lang-select class="set-language"/>
       </div>
-      <el-form-item prop="username">
+      <el-form-item prop="username" v-if="!signin">
         <span class="svg-container">
           <i class="bing-icon-user"></i>
         </span>
@@ -13,6 +13,18 @@
           v-model="loginForm.username"
           :placeholder="$t('login.username')"
           name="username"
+          type="text"
+          auto-complete="on"
+        />
+      </el-form-item>
+      <el-form-item prop="email">
+        <span class="svg-container">
+          <i class="el-icon-message"></i>
+        </span>
+        <el-input
+          v-model="loginForm.email"
+          :placeholder="$t('login.email')"
+          name="email"
           type="text"
           auto-complete="on"
         />
@@ -32,22 +44,31 @@
           <i :class="passwordType === 'password' ? 'bing-icon-password-not-view' : 'bing-icon-password-view'"></i>
         </span>
       </el-form-item>
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{ $t('login.login') }}</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{ signin ? $t('login.signin') : $t('login.signup') }}</el-button>
+      <el-button type="text" @click="changeState(!signin)">{{ signin ? $t('login.signup') : $t('login.signin') }}</el-button>
     </el-form>
   </div>
 </template>
 
 <script>
-import { isvalidUsername } from '../utils/validate'
+import { isvalidateEmail } from '../utils/validate'
 import LangSelect from '../components/LangSelect'
+import { signUp, signIn } from '../utils/api'
 
 export default {
   name: 'Login',
   components: { LangSelect },
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+      if (value.length < 6) {
+        callback(new Error('The username can not be less than 6 word'))
+      } else {
+        callback()
+      }
+    }
+    const validateEmail = (rule, value, callback) => {
+      if (!isvalidateEmail(value)) {
+        callback(new Error('Please enter the correct email'))
       } else {
         callback()
       }
@@ -61,15 +82,18 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '1111111'
+        username: '',
+        password: '',
+        email: '',
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        email: [{ required: true, trigger: 'blur', validator: validateEmail }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       passwordType: 'password',
       loading: false,
+      signin: true,
       redirect: undefined
     }
   },
@@ -99,12 +123,37 @@ export default {
           // }).catch(() => {
           //   this.loading = false
           // })
-          this.$router.push({ path: this.redirect || '/' })
+          if (this.signin) {
+            signIn({
+              email: this.loginForm.email,
+              password: this.loginForm.password,
+            }).then((data) => {
+              this.$router.push({ path: this.redirect || '/' })
+            }).catch(() => {
+              this.loading = false
+            })
+          } else {
+            signUp({
+              name: this.loginForm.username,
+              email: this.loginForm.email,
+              password: this.loginForm.password,
+            }).then((data) => {
+              this.signin = true
+              this.loading = false
+              this.$message(data.msg)
+            }).catch(() => {
+              this.loading = false
+            })
+          }
         } else {
           return false
         }
       })
     },
+    changeState(flag) {
+      this.signin = flag
+      this.$refs.loginForm.resetFields()
+    }
   }
 
 }
@@ -155,9 +204,9 @@ $cursor: #fff;
 </style>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-$bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
+$bg: #283443;
+$dark_gray: #889aa4;
+$light_gray: #eee;
 
 #login {
   min-height: 100%;
@@ -165,12 +214,14 @@ $light_gray:#eee;
   background-color: $bg;
   overflow: hidden;
   .login-form {
-    position: relative;
-    width: 520px;
-    max-width: 100%;
-    padding: 160px 35px 0;
+    position: absolute;
+    width: 404px;
+    padding: 0 35px;
     margin: 0 auto;
     overflow: hidden;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
   .svg-container {
     padding: 6px 5px 6px 15px;

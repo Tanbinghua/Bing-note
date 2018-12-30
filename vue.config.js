@@ -97,17 +97,11 @@ module.exports = {
   // https://webpack.js.org/configuration/dev-server/
   devServer: {
     open: true,
-
     host: '127.0.0.1',
-
     port: 3000,
-
     https: false,
-
     hotOnly: false,
-
-    proxy: null,
-
+    proxy: 'http://127.0.0.1:8080',
     disableHostCheck: true,
 
     before: () => {
