@@ -8,6 +8,7 @@ import './utils/normal.css'
 import './utils/iconfont.css'
 import i18n from './lang'
 import store from './store'
+import './permission'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI, {

@@ -1,9 +1,15 @@
 export default {
   side: {
-    new: '新建文档',
+    new: '新建文件',
     file: '我的文件夹',
     favorite: '收藏',
     trash: '回收站',
+    add: '新建',
+    clear: '清空',
+    delete: '删除分组',
+    restore: '全部恢复',
+    newGroup: '新建文件',
+    newItem: '新建文件',
   },
   navious: {
     info: '个人信息',

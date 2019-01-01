@@ -117,17 +117,11 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          // this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
-          //   this.loading = false
-          //   this.$router.push({ path: this.redirect || '/' })
-          // }).catch(() => {
-          //   this.loading = false
-          // })
           if (this.signin) {
             signIn({
               email: this.loginForm.email,
               password: this.loginForm.password,
-            }).then((data) => {
+            }).then(() => {
               this.$router.push({ path: this.redirect || '/' })
             }).catch(() => {
               this.loading = false

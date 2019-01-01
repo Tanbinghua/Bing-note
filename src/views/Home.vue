@@ -3,7 +3,11 @@
     <Header />
     <section id="main">
       <Sider />
-      <div style="flex: 1;">main</div>
+      <el-scrollbar style="flex: 1;">
+        <transition name="fade" mode="out-in">
+          <router-view></router-view>
+        </transition>
+      </el-scrollbar>
     </section>
   </div>
 </template>
@@ -17,11 +21,11 @@ export default {
   components: {
     Header,
     Sider,
-  }
+  },
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 #home {
   height: 100%;
   display: flex;
@@ -30,5 +34,9 @@ export default {
 #main {
   flex: 1;
   display: flex;
+  /deep/ .el-scrollbar__wrap {
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
 }
 </style>

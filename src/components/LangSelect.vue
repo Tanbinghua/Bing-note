@@ -11,6 +11,8 @@
 </template>
 
 <script>
+import { setInfo } from '../utils/api'
+
 export default {
   computed: {
     language() {
@@ -21,12 +23,15 @@ export default {
     handleCommand(lang) {
       this.$i18n.locale = lang
       this.$store.dispatch('setLanguage', lang)
-      this.$message({
-        message: 'Switch Language Success',
-        type: 'success'
+      localStorage.setItem('language', lang)
+      setInfo({ language: lang }).then(() => {
+        this.$message({
+          message: 'Switch Language Success',
+          type: 'success'
+        })
       })
     }
-  }
+  },
 }
 </script>
 

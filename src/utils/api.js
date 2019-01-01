@@ -17,10 +17,54 @@ export function signIn (data) {
   })
 }
 
-export function test (data) {
+export function getInfo () {
   return fetch({
-    url: '/api/test',
+    url: '/api/getInfo',
     method: 'GET',
-    data: qs.stringify(data)
+  })
+}
+
+export function getSide() {
+  return fetch({
+    url: '/api/getSide',
+    method: 'GET',
+  })
+}
+
+export function setInfo(data) {
+  return fetch({
+    url: '/api/setInfo',
+    method: 'POST',
+    data: qs.stringify(data),
+  })
+}
+
+export function newNote(data) {
+  return fetch({
+    url: '/api/new',
+    method: 'POST',
+    headers: {
+      "Content-Type":'application/x-www-form-urlencoded; charset=UTF-8',
+    },
+    data: qs.stringify(data),
+  })
+}
+
+export function editNote(data) {
+  return fetch({
+    url: '/api/edit',
+    method: 'POST',
+    headers: {
+      "Content-Type":'application/x-www-form-urlencoded; charset=UTF-8',
+    },
+    data: qs.stringify(data),
+  })
+}
+
+export function clearNote(data) {
+  return fetch({
+    url: '/api/clear',
+    method: 'POST',
+    data: qs.stringify(data),
   })
 }

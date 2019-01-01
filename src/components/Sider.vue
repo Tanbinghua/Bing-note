@@ -4,111 +4,177 @@
     style="width: 222px; border-right: 1px solid #e0e1e5;"
   >
     <el-menu
-      default-active="1-1-1"
-      @open="handleOpen"
-      @close="handleClose"
+      :default-active="$route.params.uuid"
       style="border: none;"
-      unique-opened
+      :collapse-transition="false"
+      ref="bingMenu"
+      router
     >
-      <el-submenu index="1">
+      <el-submenu v-for="(group, index) in side" :key="group.id" :index="String(group.id)">
         <template slot="title">
-          <i class="bing-icon-file1"></i>
-          <span class="bing-menu">{{ $t('side.file') }}</span>
-          <el-dropdown class="bing-dropdown">
+          <i :class="group.id === '2' ? 'bing-icon-favorite' :  'bing-icon-file1'" v-if="!group.editing"></i>
+          <span class="bing-menu" v-if="!group.editing" @dblclick="toggleEditGroup(index)">{{ group.id === '1' ? $t('side.file') : group.id === '2' ? $t('side.favorite') : group.title }}</span>
+          <el-dropdown class="bing-dropdown" @command="handleCommand($event, index, group.id)" v-if="!group.editing">
             <i class="el-icon-more el-icon--right"></i>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>新建文件夹</el-dropdown-item>
-              <el-dropdown-item>清空</el-dropdown-item>
+              <el-dropdown-item command="add">{{ $t('side.add') }}</el-dropdown-item>
+              <el-dropdown-item command="clear">{{ $t('side.clear') }}</el-dropdown-item>
+              <el-dropdown-item command="delete" v-if="Number(group.id) > 2">{{ $t('side.delete') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
+          <el-input
+            v-else
+            v-model="group.old_title"
+            @blur="group.editing = false"
+            @keyup.esc.native="group.editing = false"
+            @keyup.enter.native="editGroup(group.id, index)"
+          ></el-input>
         </template>
-        <el-submenu index="1-1">
-          <template slot="title">
-            <i class="bing-icon-file1"></i>
-            <span class="bing-submenu">新建文件1</span>
-            <el-dropdown class="bing-subdropdown">
-              <i class="el-icon-more el-icon--right"></i>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>新建文件</el-dropdown-item>
-                <el-dropdown-item>清空</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-          <el-menu-item index="1-1-1">
+        <el-menu-item v-for="(item, idx) in group.item" :key="item.id" :index="String(item.id)" :route="{ path: `/content/${item.id}` }">
+          <el-input
+            v-if="item.editing"
+            v-model="item.old_title"
+            @blur="item.editing = false"
+            @keyup.esc.native="item.editing = false"
+            @keyup.enter.native="editItem(item.id, index, idx)"></el-input>
+          <div @dblclick="toggleEditItem(index, idx)" v-else>
             <i class="bing-icon-file"></i>
-            <span class="bing-subitem-title">选项1-1-1</span>
-            <i class="el-icon-circle-close el-icon--right bing-del"></i>
-          </el-menu-item>
-        </el-submenu>
-        <el-submenu index="1-2">
-          <template slot="title">
-            <i class="bing-icon-file1"></i>
-            <span class="bing-submenu">新建文件2</span>
-            <el-dropdown class="bing-subdropdown">
-              <i class="el-icon-more el-icon--right"></i>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>新建文件</el-dropdown-item>
-                <el-dropdown-item>清空</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-          <el-menu-item index="1-2-1">
-            <i class="bing-icon-file"></i>
-            <span class="bing-subitem-title">选项1-2-1</span>
-            <i class="el-icon-circle-close el-icon--right bing-del"></i>
-          </el-menu-item>
-        </el-submenu>
-      </el-submenu>
-      <el-submenu index="2">
-        <template slot="title">
-          <i class="bing-icon-favorite"></i>
-          <span class="bing-menu">{{ $t('side.favorite') }}</span>
-          <el-dropdown class="bing-dropdown">
-            <i class="el-icon-more el-icon--right"></i>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>全部移除</el-dropdown-item>
-              <el-dropdown-item>清空</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </template>
-        <el-menu-item index="2-1">
-          <i class="bing-icon-file"></i>
-          <span class="bing-item-title">选项1</span>
-          <i class="el-icon-circle-close el-icon--right bing-del"></i>
+            <span>{{ item.title }}</span>
+          </div>
+        </el-menu-item>
+        <el-menu-item v-if="group.new" index="new-item" :route="{ path: $route.path }">
+          <el-input
+            v-model="itemValue"
+            autofocus
+            :placeholder="$t('side.newItem')"
+            @blur="group.new = false"
+            @keyup.esc.native="group.new = false"
+            @keyup.enter.native="addItem(group.id, index)"
+          ></el-input>
         </el-menu-item>
       </el-submenu>
-      <el-menu-item index="3" class="bing-menu-del">
+      <el-menu-item index="new-group" v-if="newGroup" :route="{ path: $route.path }">
+        <el-input
+          v-model="groupValue"
+          clearable
+          autofocus
+          :placeholder="$t('side.newGroup')"
+          @keyup.esc.native="toggleNew(false)"
+          @keyup.enter.native="addGroup"></el-input>
+      </el-menu-item>
+      <el-menu-item index="trash" :route="{ path: '/trash' }">
         <i class="el-icon-delete"></i>
-        <span slot="title" @click="testData">{{ $t('side.trash') }}</span>
+        <span slot="title">{{ $t('side.trash') }}</span>
         <el-dropdown class="bing-dropdown">
           <i class="el-icon-more el-icon--right"></i>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>彻底删除</el-dropdown-item>
-            <el-dropdown-item>全部恢复</el-dropdown-item>
+            <el-dropdown-item>{{ $t('side.delete') }}</el-dropdown-item>
+            <el-dropdown-item>{{ $t('side.restore') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </el-menu-item>
     </el-menu>
+    <div class="bing-new">
+      <el-button type="text" icon="el-icon-plus" style="color: inherit;" @click="toggleNew(!newGroup)">{{ $t('side.new') }}</el-button>
+    </div>
   </el-scrollbar>
 </template>
 
 <script>
-import { test } from '../utils/api'
+import { getSide, newNote, editNote, clearNote } from '../utils/api'
 
 export default {
   name: 'side',
-  methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    testData() {
-      test({ email: '123456' }).then((data) => {
-        console.log(data)
-      })
+  data () {
+    return {
+      side: [],
+      groupValue: '',
+      itemValue: '',
+      newGroup: false
     }
+  },
+  methods: {
+    toggleNew(flag) {
+      this.newGroup = flag
+      this.groupValue = ''
+    },
+    addGroup() {
+      if (this.groupValue) {
+        newNote({ type: 'group', title: this.groupValue, user_id: this.$store.getters.id }).then((data) => {
+          this.side.push(data.data)
+          this.$message(data.msg)
+        })
+      }
+      this.newGroup = false
+      this.groupValue = ''
+    },
+    addItem(id, index) {
+      if (this.itemValue) {
+        newNote({ type: 'item', title: this.itemValue, user_id: this.$store.getters.id, group_id: id }).then((data) => {
+          this.side[index].item.push(data.data)
+          this.$message(data.msg)
+        })
+      }
+      this.$set(this.side[index], 'new', false)
+      this.groupItem = ''
+    },
+    handleCommand(command, index, id) {
+      switch(command) {
+        case 'add':
+          this.$set(this.side[index], 'new', true)
+          this.$refs.bingMenu.open(id)
+          break
+        case 'clear':
+          clearNote({ type: 'group', id: this.side[index].id }).then((data) => {
+            this.$message(data.msg)
+            this.side[index].item = []
+          })
+          break
+        case 'delete':
+          clearNote({ type: 'all', id: this.side[index].id }).then((data) => {
+            this.$message(data.msg)
+            this.side.splice(index, 1)
+          })
+          break
+        default:
+          break
+      }
+    },
+    toggleEditGroup(index) {
+      if (index > 1) {
+        this.$set(this.side[index], 'old_title', this.side[index].title)
+        this.$set(this.side[index], 'editing', true)
+      }
+    },
+    editGroup(id, index) {
+      const group = this.side[index]
+      if (group.old_title && group.title !== group.old_title) {
+        editNote({ type: 'group', title: group.old_title, id }).then((data) => {
+          this.$message(data.msg)
+          this.$set(this.side[index], 'title', group.old_title)
+          this.$set(this.side[index], 'editing', false)
+        })
+      }
+    },
+    toggleEditItem(index, idx) {
+      this.$set(this.side[index].item[idx], 'old_title', this.side[index].item[idx].title)
+      this.$set(this.side[index].item[idx], 'editing', true)
+    },
+    editItem(id, index, idx) {
+      const item = this.side[index].item[idx]
+      if (item.old_title && item.title !== item.old_title) {
+        editNote({ type: 'item', title: item.old_title, id }).then((data) => {
+          this.$message(data.msg)
+          this.$set(this.side[index].item[idx], 'title', item.old_title)
+          this.$set(this.side[index].item[idx], 'editing', false);
+        })
+      }
+    }
+  },
+  mounted() {
+    getSide().then((data) => {
+      this.side = data.data
+    })
   }
 }
 </script>
@@ -118,13 +184,6 @@ export default {
   display: inline-block;
   width: 140px;
   &:hover + .bing-dropdown {
-    display: block;
-  }
-}
-.bing-submenu {
-  display: inline-block;
-  width: 120px;
-  &:hover + .bing-subdropdown {
     display: block;
   }
 }
@@ -141,27 +200,14 @@ export default {
     display: block;
   }
 }
-.bing-item-title {
-  display: inline-block;
-  width: 125px;
-  &:hover + .bing-del {
-    display: block;
-  }
-}
-.bing-subitem-title {
-  display: inline-block;
-  width: 105px;
-  &:hover + .bing-del {
-    display: block;
-  }
-}
-.bing-del {
-  display: none;
-  position: absolute;
-  top: 16px;
-  right: 10px;
+.bing-new {
+  line-height: 56px;
+  text-align: center;
+  border-top: 1px solid rgb(224, 225, 229);
+  border-bottom: 1px solid rgb(224, 225, 229);
+  transition: all .4s ease;
   &:hover {
-    display: block;
+    opacity: .8;
   }
 }
 </style>

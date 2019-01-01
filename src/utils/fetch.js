@@ -1,4 +1,5 @@
 import axios from 'axios'
+import router from '../router'
 import { Message } from 'element-ui'
 
 // create an axios instance
@@ -13,12 +14,15 @@ service.interceptors.response.use(
     if (response.data.success) {
       return response.data
     }
+    if (response.data.code === 403) {
+      router.push('/login')
+    }
     Message({
       message: response.data.msg,
       type: 'error',
       duration: 5 * 1000,
     })
-    return Promise.reject(response.data)
+    return Promise.reject(response.data.msg)
   },
   error => {
     Message({

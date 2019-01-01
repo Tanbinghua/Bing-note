@@ -9,13 +9,14 @@
 </template>
 
 <script>
+import { setInfo } from '../utils/api'
 const version = require('element-ui/package.json').version
 const ORIGINAL_THEME = '#409EFF'
 export default {
   data() {
     return {
       chalk: '',
-      theme: ORIGINAL_THEME
+      theme: this.$store.getters.theme
     }
   },
   watch: {
@@ -54,7 +55,7 @@ export default {
         style.innerText = this.updateStyle(innerText, originalCluster, themeCluster)
       })
       this.$message({
-        message: '换肤成功',
+        message: 'Success to change theme!',
         type: 'success'
       })
     }
@@ -115,9 +116,11 @@ export default {
       return clusters
     },
     changeTheme () {
-      this.$emit('update', this.theme)
+      setInfo({ theme: this.theme }).then(() => {
+        this.$store.dispatch('setTheme', this.theme)
+      })
     }
-  }
+  },
 }
 </script>
 

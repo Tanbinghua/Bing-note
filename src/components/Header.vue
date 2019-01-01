@@ -15,7 +15,7 @@
           </el-dropdown-menu>
         </el-dropdown>
       </div>
-      <theme-picker class="theme-picker" @update="background = $event" />
+      <theme-picker class="theme-picker" />
       <lang-select class="international right-menu-item"/>
     </div>
   </div>
@@ -29,7 +29,11 @@ export default {
   name: 'navious',
   data () {
     return {
-      background: '#409EFF',
+    }
+  },
+  computed: {
+    background() {
+      return this.$store.getters.theme
     }
   },
   components: {

@@ -1,9 +1,15 @@
 export default {
   side: {
-    new: 'New Doc',
+    new: 'New File',
     file: 'My File',
     favorite: 'Favorite',
     trash: 'Trash',
+    add: 'Add',
+    clear: 'Clear',
+    delete: 'Delete',
+    restore: 'Restore',
+    newGroup: 'new file',
+    newItem: 'new item',
   },
   navious: {
     info: 'Yout Info',
