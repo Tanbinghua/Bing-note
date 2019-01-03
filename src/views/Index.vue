@@ -1,7 +1,7 @@
 <template>
   <div id="index">
     <div id="center">
-      <h1 id="title">Bing-Note</h1>
+      <h1 id="title" :style="{ color: $store.getters.theme }">Bing-Note</h1>
     </div>
   </div>
 </template>
@@ -35,6 +35,5 @@ export default {
   font-family: 'Permanent Marker', cursive;
   font-size: 50px;
   user-select: none;
-  color: #409EFF;
 }
 </style>

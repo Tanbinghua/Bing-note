@@ -1,6 +1,12 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-const _import = require('./_import_' + process.env.NODE_ENV)
+// const _import = require('./_import_' + process.env.NODE_ENV)
+import Home from '../views/Home'
+import Index from '../views/Index'
+import Trash from '../views/Trash'
+import Content from '../views/Content'
+import Login from '../views/Login'
+import ErrorPage from '../views/Error'
 
 Vue.use(Router)
 
@@ -8,15 +14,15 @@ export default new Router({
   routes: [
     {
       path: '/',
-      component: _import('Home'),
+      component: Home,
       children: [
-        { path: '/', name: 'Index', component: _import('Index') },
-        { path: '/trash', name: 'Trash', component: _import('Trash') },
-        { path: '/content/:uuid', name: 'Content', component: _import('Content') },
+        { path: '/', name: 'Index', component: Index },
+        { path: '/trash', name: 'Trash', component: Trash },
+        { path: '/content/:uuid', name: 'Content', component: Content },
       ]
     },
-    { path: '/login', name: 'Login', component: _import('Login') },
+    { path: '/login', name: 'Login', component: Login },
     { path: '*', redirect: '/error' },
-    { path: '/error', name: 'Error', component: _import('Error') }
+    { path: '/error', name: 'Error', component: ErrorPage }
   ]
 })

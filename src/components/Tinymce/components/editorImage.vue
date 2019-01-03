@@ -11,12 +11,12 @@
         :on-success="handleSuccess"
         :before-upload="beforeUpload"
         class="editor-slide-upload"
-        action="https://httpbin.org/post"
+        action="/api/upload"
         list-type="picture-card">
-        <el-button size="small" type="primary">点击上传</el-button>
+        <el-button size="small" type="primary">{{ $t('upload.btnMsg') }}</el-button>
       </el-upload>
-      <el-button @click="dialogVisible = false">取 消</el-button>
-      <el-button type="primary" @click="handleSubmit">确 定</el-button>
+      <el-button @click="dialogVisible = false">{{ $t('upload.cancel') }}</el-button>
+      <el-button type="primary" @click="handleSubmit">{{ $t('upload.submit') }}</el-button>
     </el-dialog>
   </div>
 </template>
@@ -36,7 +36,7 @@ export default {
     return {
       dialogVisible: false,
       listObj: {},
-      fileList: []
+      fileList: [],
     }
   },
   methods: {
@@ -59,7 +59,7 @@ export default {
       const objKeyArr = Object.keys(this.listObj)
       for (let i = 0, len = objKeyArr.length; i < len; i++) {
         if (this.listObj[objKeyArr[i]].uid === uid) {
-          this.listObj[objKeyArr[i]].url = response.files.file
+          this.listObj[objKeyArr[i]].url = response.data
           this.listObj[objKeyArr[i]].hasSuccess = true
           return
         }
@@ -80,7 +80,7 @@ export default {
       const _URL = window.URL || window.webkitURL
       const fileName = file.uid
       this.listObj[fileName] = {}
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const img = new Image()
         img.src = _URL.createObjectURL(file)
         img.onload = function() {
@@ -98,6 +98,10 @@ export default {
   margin-bottom: 20px;
   /deep/ .el-upload--picture-card {
     width: 100%;
+  }
+  /deep/ .el-upload-list__item-thumbnail {
+    width: 100%;
+    height: unset;
   }
 }
 </style>

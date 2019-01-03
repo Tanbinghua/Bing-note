@@ -44,7 +44,15 @@
           <i :class="passwordType === 'password' ? 'bing-icon-password-not-view' : 'bing-icon-password-view'"></i>
         </span>
       </el-form-item>
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{ signin ? $t('login.signin') : $t('login.signup') }}</el-button>
+      <el-form-item prop="code" v-if="!signin" class="code">
+        <el-input
+          type="text"
+          v-model="loginForm.code"
+          :placeholder="$t('login.code')"
+          name="code" />
+      </el-form-item>
+      <el-button v-if="!signin" :disabled="waitTime !== ''" @click="sendEmail">{{ $t('login.getCode') + waitTime }}</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;margin: 0;" @click.native.prevent="handleLogin">{{ signin ? $t('login.signin') : $t('login.signup') }}</el-button>
       <el-button type="text" @click="changeState(!signin)">{{ signin ? $t('login.signup') : $t('login.signin') }}</el-button>
     </el-form>
   </div>
@@ -53,7 +61,7 @@
 <script>
 import { isvalidateEmail } from '../utils/validate'
 import LangSelect from '../components/LangSelect'
-import { signUp, signIn } from '../utils/api'
+import { signUp, signIn, sendEmail } from '../utils/api'
 
 export default {
   name: 'Login',
@@ -85,11 +93,15 @@ export default {
         username: '',
         password: '',
         email: '',
+        code: '',
       },
+      waitTime: '',
+      timer: null,
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         email: [{ required: true, trigger: 'blur', validator: validateEmail }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        code: [{ required: true, trigger: 'blur', message: 'Code can\'t be null!' }],
       },
       passwordType: 'password',
       loading: false,
@@ -131,6 +143,7 @@ export default {
               name: this.loginForm.username,
               email: this.loginForm.email,
               password: this.loginForm.password,
+              code: this.loginForm.code,
             }).then((data) => {
               this.signin = true
               this.loading = false
@@ -147,6 +160,20 @@ export default {
     changeState(flag) {
       this.signin = flag
       this.$refs.loginForm.resetFields()
+    },
+    sendEmail() {
+      sendEmail({ email: this.loginForm.email }).then((data) => {
+        this.$message(data.msg)
+      })
+      let time = 120
+      this.timer = setInterval(() => {
+        if (time > 0) {
+          this.waitTime = '( ' + (time--) + 's )'
+        } else {
+          clearInterval(this.timer)
+          this.waitTime = ''
+        }
+      }, 1000)
     }
   }
 
@@ -249,5 +276,10 @@ $light_gray: #eee;
     cursor: pointer;
     user-select: none;
   }
+}
+.code {
+  width: 200px;
+  display: inline-block;
+  margin-right: 20px;
 }
 </style>

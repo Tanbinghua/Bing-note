@@ -21,6 +21,9 @@ export default new Vuex.Store({
     SET_THEME (state, theme) {
       state.theme = theme
     },
+    LOGIN_OUT (state) {
+      state.id = null
+    },
     SET_INFO (state, data) {
       const { id, name, email, language, avatar, create_time } = data;
       state.id = id
@@ -43,6 +46,9 @@ export default new Vuex.Store({
     setTheme({ commit }, theme) {
       commit('SET_THEME', theme)
     },
+    logOut({ commit }) {
+      commit('LOGIN_OUT')
+    }
   },
   getters
 })

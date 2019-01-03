@@ -15,6 +15,9 @@ export default {
     info: '个人信息',
     feedback: '意见反馈',
     signout: '注销登录',
+    sure: '好的',
+    title: '用户信息',
+    name: '用户名',
   },
   login: {
     inTitle: '系统登录',
@@ -24,5 +27,24 @@ export default {
     email: '邮箱',
     signin: '登录',
     signup: '注册',
+    code: '验证码',
+    getCode: '获取验证码',
+  },
+  trash: {
+    restore: '还原',
+    delete: '删除',
+  },
+  upload: {
+    btnMsg: '点击上传',
+    cancel: '取消',
+    submit: '确定',
+  },
+  note: {
+    save: '保存',
+    delete: '删除',
+  },
+  content: {
+    create: '创建于: ',
+    update: '更新于: ',
   },
 }

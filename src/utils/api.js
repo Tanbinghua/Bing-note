@@ -17,6 +17,21 @@ export function signIn (data) {
   })
 }
 
+export function signOut() {
+  return fetch({
+    url: '/api/signout',
+    method: 'GET'
+  })
+}
+
+export function sendEmail(data) {
+  return fetch({
+    url: '/api/sendEmail',
+    method: 'POST',
+    data: qs.stringify(data),
+  })
+}
+
 export function getInfo () {
   return fetch({
     url: '/api/getInfo',
@@ -27,6 +42,13 @@ export function getInfo () {
 export function getSide() {
   return fetch({
     url: '/api/getSide',
+    method: 'GET',
+  })
+}
+
+export function getTrash() {
+  return fetch({
+    url: '/api/getTrash',
     method: 'GET',
   })
 }
@@ -65,6 +87,32 @@ export function clearNote(data) {
   return fetch({
     url: '/api/clear',
     method: 'POST',
+    data: qs.stringify(data),
+  })
+}
+
+export function toggleTrash(data) {
+  return fetch({
+    url: '/api/trash',
+    method: 'POST',
+    data: qs.stringify(data),
+  })
+}
+
+export function getContent(id) {
+  return fetch({
+    url: `/api/getContent?id=${id}`,
+    method: 'GET',
+  })
+}
+
+export function editContent(data) {
+  return fetch({
+    url: '/api/editContent',
+    method: 'POST',
+    headers: {
+      "Content-Type":'application/x-www-form-urlencoded; charset=UTF-8',
+    },
     data: qs.stringify(data),
   })
 }

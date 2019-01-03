@@ -4,7 +4,7 @@
     style="width: 222px; border-right: 1px solid #e0e1e5;"
   >
     <el-menu
-      :default-active="$route.params.uuid"
+      :default-active="onRoute"
       style="border: none;"
       :collapse-transition="false"
       ref="bingMenu"
@@ -62,14 +62,14 @@
           @keyup.esc.native="toggleNew(false)"
           @keyup.enter.native="addGroup"></el-input>
       </el-menu-item>
-      <el-menu-item index="trash" :route="{ path: '/trash' }">
+      <el-menu-item index="trash" :route="{ path: '/trash' }" class="bing-menu-del">
         <i class="el-icon-delete"></i>
         <span slot="title">{{ $t('side.trash') }}</span>
-        <el-dropdown class="bing-dropdown">
+        <el-dropdown class="bing-dropdown" @command="handleTrash">
           <i class="el-icon-more el-icon--right"></i>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>{{ $t('side.delete') }}</el-dropdown-item>
-            <el-dropdown-item>{{ $t('side.restore') }}</el-dropdown-item>
+            <el-dropdown-item command="restore">{{ $t('side.restore') }}</el-dropdown-item>
+            <el-dropdown-item command="delete">{{ $t('side.delete') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </el-menu-item>
@@ -81,7 +81,8 @@
 </template>
 
 <script>
-import { getSide, newNote, editNote, clearNote } from '../utils/api'
+import { getSide, newNote, editNote, clearNote, toggleTrash } from '../utils/api'
+import { GlobalBus } from './GlobalBus.js'
 
 export default {
   name: 'side',
@@ -93,6 +94,15 @@ export default {
       newGroup: false
     }
   },
+  computed: {
+    onRoute() {
+      let route = this.$route.params.uuid
+      if (!route) {
+        route = this.$route.path.replace('/', '')
+      }
+      return route
+    }
+  },
   methods: {
     toggleNew(flag) {
       this.newGroup = flag
@@ -101,6 +111,7 @@ export default {
     addGroup() {
       if (this.groupValue) {
         newNote({ type: 'group', title: this.groupValue, user_id: this.$store.getters.id }).then((data) => {
+          data.data.item = []
           this.side.push(data.data)
           this.$message(data.msg)
         })
@@ -116,7 +127,7 @@ export default {
         })
       }
       this.$set(this.side[index], 'new', false)
-      this.groupItem = ''
+      this.itemValue = ''
     },
     handleCommand(command, index, id) {
       switch(command) {
@@ -128,12 +139,33 @@ export default {
           clearNote({ type: 'group', id: this.side[index].id }).then((data) => {
             this.$message(data.msg)
             this.side[index].item = []
+            GlobalBus.$emit('updateTrash')
           })
           break
         case 'delete':
           clearNote({ type: 'all', id: this.side[index].id }).then((data) => {
             this.$message(data.msg)
             this.side.splice(index, 1)
+            GlobalBus.$emit('updateTrash')
+          })
+          break
+        default:
+          break
+      }
+    },
+    handleTrash(command) {
+      switch(command) {
+        case 'delete':
+          toggleTrash({ type: 'all', option: 'delete' }).then((data) => {
+            this.$message(data.msg)
+            GlobalBus.$emit('updateTrash')
+          })
+          break
+        case 'restore':
+          toggleTrash({ type: 'all', option: 'restore' }).then((data) => {
+            this.$message(data.msg)
+            GlobalBus.$emit('updateTrash')
+            this.getData()
           })
           break
         default:
@@ -169,11 +201,17 @@ export default {
           this.$set(this.side[index].item[idx], 'editing', false);
         })
       }
+    },
+    getData() {
+      getSide().then((data) => {
+        this.side = data.data
+      })
     }
   },
   mounted() {
-    getSide().then((data) => {
-      this.side = data.data
+    this.getData()
+    GlobalBus.$on('updateSide', () => {
+      this.getData()
     })
   }
 }
