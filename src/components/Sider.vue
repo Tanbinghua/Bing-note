@@ -12,14 +12,14 @@
     >
       <el-submenu v-for="(group, index) in side" :key="group.id" :index="String(group.id)">
         <template slot="title">
-          <i :class="group.id === '2' ? 'bing-icon-favorite' :  'bing-icon-file1'" v-if="!group.editing"></i>
-          <span class="bing-menu" v-if="!group.editing" @dblclick="toggleEditGroup(index)">{{ group.id === '1' ? $t('side.file') : group.id === '2' ? $t('side.favorite') : group.title }}</span>
+          <i :class="group.title === '我的收藏' ? 'bing-icon-favorite' :  'bing-icon-file1'" v-if="!group.editing"></i>
+          <span class="bing-menu" v-if="!group.editing" @dblclick="toggleEditGroup(index)">{{ group.title === '我的文件夹' ? $t('side.file') : group.title === '我的收藏' ? $t('side.favorite') : group.title }}</span>
           <el-dropdown class="bing-dropdown" @command="handleCommand($event, index, group.id)" v-if="!group.editing">
             <i class="el-icon-more el-icon--right"></i>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="add">{{ $t('side.add') }}</el-dropdown-item>
               <el-dropdown-item command="clear">{{ $t('side.clear') }}</el-dropdown-item>
-              <el-dropdown-item command="delete" v-if="Number(group.id) > 2">{{ $t('side.delete') }}</el-dropdown-item>
+              <el-dropdown-item command="delete" v-if="group.title !== '我的文件夹' && group.title !== '我的收藏'">{{ $t('side.delete') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
           <el-input

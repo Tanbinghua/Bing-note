@@ -5,7 +5,7 @@
       <h3 class="title">{{ title }}</h3>
       <el-button type="danger" size="small" @click="deleteItem">{{ $t('note.delete') }}</el-button>
     </div>
-    <Tinymce v-model="content" ref="richContent" />
+    <Tinymce v-model="content" ref="richContent" :height="500" />
     <div class="note-bottom">
       <p class="time">{{ $t('content.create') + create_time }}</p>
       <p class="time">{{ $t('content.update') + update_time }}</p>
